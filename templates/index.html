@@ -6,38 +6,29 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='dark.css') }}">
   <style>
     body {
-      margin: 0;
-      padding: 1em;
       font-family: sans-serif;
-    }
-    .container {
-      max-width: 600px;
+      padding: 10px;
+      max-width: 480px;
       margin: auto;
-    }
-    h1, h2 {
-      text-align: center;
-    }
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
+      background: #111;
+      color: #eee;
     }
     input {
-      padding: 12px;
-      font-size: 18px;
-      border: 1px solid #666;
-      border-radius: 6px;
-      background: #111;
-      color: white;
+      display: block;
+      width: 100%;
+      margin: 5px 0;
+      font-size: 20px;
+      padding: 10px;
+      box-sizing: border-box;
     }
     button {
-      font-size: 18px;
-      padding: 10px 20px;
-      border-radius: 6px;
-      border: none;
-      margin-top: 10px;
-      align-self: center;
+      width: 100%;
+      margin: 10px 0;
+      padding: 10px;
+      font-size: 20px;
+    }
+    .input-group {
+      margin-bottom: 10px;
     }
     #resultBox, #meboshiBox {
       background: #222;
@@ -46,13 +37,13 @@
       white-space: pre-wrap;
       border: 1px solid #444;
       border-radius: 6px;
-      font-size: 17px;
+      font-size: 18px;
     }
     .button-row {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       gap: 10px;
-      margin-top: 16px;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -117,7 +108,8 @@
         const nums = spin.split("#").map(x => parseInt(x));
         const total = nums.reduce((a, b) => a + b, 0);
         const detail = nums.length > 1 ? `（${nums.join("＋")}）` : "";
-        box.innerHTML += `${ban}番台　${total}${detail}\n`;
+        box.innerHTML += `${ban}番台　${total}${detail}
+`;
       });
     }
 
@@ -144,14 +136,19 @@
 
     function renderMeboshi() {
       const box = document.getElementById("meboshiBox");
-      box.innerHTML = "\n―― 目星 ――\n\n";
+      box.innerHTML = "
+―― 目星 ――
+
+";
       meboshiList.forEach(({ban, spin, minutes}) => {
-        box.innerHTML += `${ban}番台　${spin}　${minutes}分\n`;
+        box.innerHTML += `${ban}番台　${spin}　${minutes}分
+`;
       });
     }
 
     function copyAll(el) {
-      const text = document.getElementById("resultBox").textContent + "\n" + document.getElementById("meboshiBox").textContent;
+      const text = document.getElementById("resultBox").textContent + "
+" + document.getElementById("meboshiBox").textContent;
       el.dataset.clip = text;
       if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => showToast());
