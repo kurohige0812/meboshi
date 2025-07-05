@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>めぼしちゃん</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='dark.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1>めぼしちゃん</h1>
+    <form method="post">
+      <section>
+        <h2>回転数記入欄</h2>
+        <textarea name="rotation_input" rows="5" placeholder="98#500\n100#352\n170#500">{{ request.form.get("rotation_input", "") }}</textarea>
+      </section>
+
+      <section>
+        <h2>―― 目星 ――</h2>
+        <textarea name="meboshi_input" rows="5" placeholder="150 500円\n165 125玉">{{ request.form.get("meboshi_input", "") }}</textarea>
+      </section>
+
+      <button type="submit">決定</button>
+    </form>
+
+    {% if final_output %}
+      <section>
+        <h2>結果</h2>
+        <pre id="resultText">{{ final_output }}</pre>
+        <button class="copy-label" data-clip="{{ final_output }}">コピー</button>
+      </section>
+    {% endif %}
+  </div>
+
+  <!-- コピー成功トースト -->
+  <div id="toast"
+       style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+              background:#0d6efd;color:#fff;padding:6px 16px;border-radius:8px;
+              font-size:.9rem;z-index:2000;box-shadow:0 0 6px #0008;">
+    コピーしました
+  </div>
+
+  <script>
+  function flashCopied(labelEl){
+    const old = labelEl.parentNode.querySelector('.copied');
+    if (old) old.remove();
+
+    const tag = document.createElement('small');
+    tag.className = 'copied ms-2 text-info';
+    tag.textContent = 'コピーしました';
+    labelEl.after(tag);
+    setTimeout(() => tag.remove(), 900);
+  }
+
+  function fallbackCopy(text){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  }
+
+  document.addEventListener('click', e => {
+    const el = e.target;
+    if (!el.classList.contains('copy-label')) return;
+    const text = el.dataset.clip || '';
+    if (navigator.clipboard){
+      navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+    } else {
+      fallbackCopy(text);
+    }
+    flashCopied(el);
+    el.classList.add('text-success');
+    setTimeout(() => el.classList.remove('text-success'), 700);
+  });
+  </script>
+</body>
+</html>
