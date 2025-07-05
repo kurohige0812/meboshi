@@ -25,21 +25,21 @@ html, body {
 }
 
 input {
-  width: 100%;
+  width: 300px;
   padding: 12px;
-  margin: 8px 0;
+  margin: 30px 0;
   font-size: 18px;
   border: 1px solid #444;
   border-radius: 6px;
   background-color: #222;
   color: white;
-  max-width: 100%;
+  max-width: 300px;
 }
 
 button {
-  padding: 12px 24px;
+  padding: 12px 40px;
   font-size: 18px;
-  margin-top: 10px;
+  margin: 50px;
   background: #0d6efd;
   color: white;
   border: none;
@@ -64,8 +64,8 @@ button {
 }
 
 .hash-btn {
-  margin-left: 6px;
-  padding: 6px 10px;
+  margin-left: 10px;
+  padding: 6px 12px;
   font-size: 16px;
   background-color: #444;
   color: #fff;
@@ -81,7 +81,7 @@ button {
 .reset-btn {
   background-color: #dc3545; /* 赤系 */
   color: white;
-  margin-top: 40px;
+  margin-top: 140px;
 }
 .reset-btn:hover {
   background-color: #b52a38;
