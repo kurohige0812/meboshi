@@ -4,76 +4,143 @@
   <meta charset="utf-8">
   <title>めぼしちゃん</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='dark.css') }}">
+  <style>
+    .row { display: flex; gap: 10px; margin-bottom: 8px; }
+    .row input { flex: 1; padding: 8px; font-size: 16px; }
+    #resultBox, #meboshiBox {
+      background: #222; padding: 10px; margin-top: 16px;
+      white-space: pre-wrap; border: 1px solid #444; border-radius: 6px;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <h1>めぼしちゃん</h1>
-    <form method="post">
-      <section>
-        <h2>回転数記入欄</h2>
-        <textarea name="rotation_input" rows="5" placeholder="98#500\n100#352\n170#500">{{ request.form.get("rotation_input", "") }}</textarea>
-      </section>
 
-      <section>
-        <h2>―― 目星 ――</h2>
-        <textarea name="meboshi_input" rows="5" placeholder="150 500円\n165 125玉">{{ request.form.get("meboshi_input", "") }}</textarea>
-      </section>
+    <section>
+      <h2>回転数記入欄</h2>
+      <div class="row">
+        <input id="banInput" placeholder="番台">
+        <input id="spinInput" placeholder="回転数（例: 340#190）">
+        <button onclick="addRotation()">追加</button>
+      </div>
+      <div id="resultBox"></div>
+    </section>
 
-      <button type="submit">決定</button>
-    </form>
+    <section>
+      <h2>―― 目星 ――</h2>
+      <div class="row">
+        <input id="meboBan" placeholder="番台">
+        <input id="meboSpin" placeholder="回転数">
+        <input id="meboYen" placeholder="金額（円）">
+        <input id="meboTama" placeholder="持ち玉（玉）">
+        <button onclick="addMeboshi()">追加</button>
+      </div>
+      <div id="meboshiBox"></div>
+    </section>
 
-    {% if final_output %}
-      <section>
-        <h2>結果</h2>
-        <pre id="resultText">{{ final_output }}</pre>
-        <button class="copy-label" data-clip="{{ final_output }}">コピー</button>
-      </section>
-    {% endif %}
-  </div>
+    <div class="row">
+      <button class="copy-label" data-clip="" onclick="copyAll(this)">全体をコピー</button>
+      <button onclick="resetAll()">リセット</button>
+    </div>
 
-  <!-- コピー成功トースト -->
-  <div id="toast"
-       style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
-              background:#0d6efd;color:#fff;padding:6px 16px;border-radius:8px;
-              font-size:.9rem;z-index:2000;box-shadow:0 0 6px #0008;">
-    コピーしました
+    <!-- コピー成功トースト -->
+    <div id="toast"
+         style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+                background:#0d6efd;color:#fff;padding:6px 16px;border-radius:8px;
+                font-size:.9rem;z-index:2000;box-shadow:0 0 6px #0008;">
+      コピーしました
+    </div>
   </div>
 
   <script>
-  function flashCopied(labelEl){
-    const old = labelEl.parentNode.querySelector('.copied');
-    if (old) old.remove();
+    const rotationList = [];
+    const meboshiList = [];
 
-    const tag = document.createElement('small');
-    tag.className = 'copied ms-2 text-info';
-    tag.textContent = 'コピーしました';
-    labelEl.after(tag);
-    setTimeout(() => tag.remove(), 900);
-  }
-
-  function fallbackCopy(text){
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.style.position = 'fixed';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta);
-  }
-
-  document.addEventListener('click', e => {
-    const el = e.target;
-    if (!el.classList.contains('copy-label')) return;
-    const text = el.dataset.clip || '';
-    if (navigator.clipboard){
-      navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
-    } else {
-      fallbackCopy(text);
+    function addRotation() {
+      const ban = document.getElementById("banInput").value.trim();
+      const spin = document.getElementById("spinInput").value.trim();
+      if (!ban || !spin) return;
+      rotationList.push({ ban: parseInt(ban), spin });
+      rotationList.sort((a, b) => a.ban - b.ban);
+      renderRotation();
+      document.getElementById("banInput").value = "";
+      document.getElementById("spinInput").value = "";
     }
-    flashCopied(el);
-    el.classList.add('text-success');
-    setTimeout(() => el.classList.remove('text-success'), 700);
-  });
+
+    function renderRotation() {
+      const box = document.getElementById("resultBox");
+      box.innerHTML = "";
+      rotationList.forEach(({ban, spin}) => {
+        const nums = spin.split("#").map(x => parseInt(x));
+        const total = nums.reduce((a, b) => a + b, 0);
+        const detail = nums.length > 1 ? `（${nums.join("＋")}）` : "";
+        box.innerHTML += `${ban}番台　${total}${detail}\n`;
+      });
+    }
+
+    function addMeboshi() {
+      const ban = document.getElementById("meboBan").value.trim();
+      const spin = document.getElementById("meboSpin").value.trim();
+      const yen = document.getElementById("meboYen").value.trim();
+      const tama = document.getElementById("meboTama").value.trim();
+      if (!ban || !spin || (!yen && !tama)) return;
+
+      let minutes = 0;
+      if (yen) minutes = Math.round((parseInt(yen) / 500) * 2);
+      else if (tama) minutes = Math.round((parseInt(tama) / 125) * 2);
+
+      meboshiList.push({ ban: parseInt(ban), spin, minutes });
+      meboshiList.sort((a, b) => a.ban - b.ban);
+      renderMeboshi();
+
+      document.getElementById("meboBan").value = "";
+      document.getElementById("meboSpin").value = "";
+      document.getElementById("meboYen").value = "";
+      document.getElementById("meboTama").value = "";
+    }
+
+    function renderMeboshi() {
+      const box = document.getElementById("meboshiBox");
+      box.innerHTML = "\n―― 目星 ――\n\n";
+      meboshiList.forEach(({ban, spin, minutes}) => {
+        box.innerHTML += `${ban}番台　${spin}　${minutes}分\n`;
+      });
+    }
+
+    function copyAll(el) {
+      const text = document.getElementById("resultBox").textContent + "\n" + document.getElementById("meboshiBox").textContent;
+      el.dataset.clip = text;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => showToast());
+      } else {
+        fallbackCopy(text);
+        showToast();
+      }
+    }
+
+    function fallbackCopy(text){
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select(); document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+
+    function showToast() {
+      const toast = document.getElementById("toast");
+      toast.style.display = "block";
+      setTimeout(() => toast.style.display = "none", 1500);
+    }
+
+    function resetAll() {
+      rotationList.length = 0;
+      meboshiList.length = 0;
+      document.getElementById("resultBox").innerHTML = "";
+      document.getElementById("meboshiBox").innerHTML = "";
+    }
   </script>
 </body>
 </html>
