@@ -4,11 +4,24 @@ body {
   background: #121212;
   color: #f0f0f0;
   font-size: 18px;
+  margin: 0;
+  overflow-x: hidden; /* 横スクロール防止 */
+}
+
+html, body {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box; /* パディング含めてサイズ制御 */
 }
 
 .container {
   max-width: 600px;
   margin: auto;
+  padding: 0 10px;
+  overflow-x: hidden;
 }
 
 input {
@@ -20,6 +33,7 @@ input {
   border-radius: 6px;
   background-color: #222;
   color: white;
+  max-width: 100%;
 }
 
 button {
@@ -34,6 +48,7 @@ button {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  max-width: 100%;
 }
 
 #resultBox, #meboshiBox {
@@ -44,6 +59,23 @@ button {
   border-radius: 6px;
   white-space: pre-wrap;
   line-height: 1.6;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.hash-btn {
+  margin-left: 6px;
+  padding: 6px 10px;
+  font-size: 16px;
+  background-color: #444;
+  color: #fff;
+  border: 1px solid #666;
+  border-radius: 4px;
+  cursor: pointer;
+  max-width: 100%;
+}
+.hash-btn:hover {
+  background-color: #666;
 }
 
 @media (max-width: 480px) {
