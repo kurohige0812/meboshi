@@ -78,6 +78,16 @@ button {
   background-color: #666;
 }
 
+.reset-btn {
+  background-color: #dc3545; /* 赤系 */
+  color: white;
+  margin-top: 40px;
+}
+.reset-btn:hover {
+  background-color: #b52a38;
+}
+
+
 @media (max-width: 480px) {
   h1 {
     font-size: 24px;

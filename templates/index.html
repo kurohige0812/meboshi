@@ -4,87 +4,44 @@
   <meta charset="utf-8">
   <title>めぼしちゃん</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='dark.css') }}">
-  <style>
-    body {
-      font-family: sans-serif;
-      padding: 10px;
-      max-width: 480px;
-      margin: auto;
-      background: #111;
-      color: #eee;
-    }
-    input {
-      display: block;
-      width: 100%;
-      margin: 5px 0;
-      font-size: 20px;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-    button {
-      width: 100%;
-      margin: 10px 0;
-      padding: 10px;
-      font-size: 20px;
-    }
-    .input-group {
-      margin-bottom: 10px;
-    }
-    #resultBox, #meboshiBox {
-      background: #222;
-      padding: 10px;
-      margin-top: 16px;
-      white-space: pre-wrap;
-      border: 1px solid #444;
-      border-radius: 6px;
-      font-size: 18px;
-    }
-    .button-row {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 20px;
-    }
-  </style>
 </head>
 <body>
   <div class="container">
     <h1>めぼしちゃん</h1>
 
-   <!-- 回転数記入欄 -->
-<section>
-  <h2>回転数記入欄</h2>
-  <div class="input-group">
-    <input id="banInput" placeholder="番台" inputmode="numeric">
-    <div style="display: flex; align-items: center;">
-      <input id="spinInput" placeholder="回転数（例: 340#190）" inputmode="numeric">
-      <button class="hash-btn" type="button" onclick="insertHash('spinInput')">#</button>
-    </div>
-    <button onclick="addRotation()">追加</button>
-  </div>
-  <div id="resultBox"></div>
-</section>
+    <!-- 回転数記入欄 -->
+    <section>
+      <h2>回転数記入欄</h2>
+      <div class="input-group">
+        <input id="banInput" placeholder="番台" inputmode="numeric">
+        <div style="display: flex; align-items: center;">
+          <input id="spinInput" placeholder="回転数（例: 340#190）" inputmode="numeric">
+          <button class="hash-btn" type="button" onclick="insertHash('spinInput')">#</button>
+        </div>
+        <button onclick="addRotation()">追加</button>
+      </div>
+      <div id="resultBox"></div>
+    </section>
 
-<!-- 目星記入欄 -->
-<section>
-  <h2>―― 目星 ――</h2>
-  <div class="input-group">
-    <input id="meboBan" placeholder="番台" inputmode="numeric">
-    <div style="display: flex; align-items: center;">
-      <input id="meboSpin" placeholder="回転数" inputmode="numeric">
-      <button class="hash-btn" type="button" onclick="insertHash('meboSpin')">#</button>
-    </div>
-    <input id="meboYen" placeholder="金額（円）" inputmode="numeric">
-    <input id="meboTama" placeholder="持ち玉（玉）" inputmode="numeric">
-    <button onclick="addMeboshi()">追加</button>
-  </div>
-  <div id="meboshiBox"></div>
-</section>
-
+    <!-- 目星記入欄 -->
+    <section>
+      <h2>―― 目星 ――</h2>
+      <div class="input-group">
+        <input id="meboBan" placeholder="番台" inputmode="numeric">
+        <div style="display: flex; align-items: center;">
+          <input id="meboSpin" placeholder="回転数" inputmode="numeric">
+          <button class="hash-btn" type="button" onclick="insertHash('meboSpin')">#</button>
+        </div>
+        <input id="meboYen" placeholder="金額（円）" inputmode="numeric">
+        <input id="meboTama" placeholder="持ち玉（玉）" inputmode="numeric">
+        <button onclick="addMeboshi()">追加</button>
+      </div>
+      <div id="meboshiBox"></div>
+    </section>
 
     <div class="button-row">
       <button class="copy-label" data-clip="" onclick="copyAll(this)">全体をコピー</button>
-      <button onclick="resetAll()">リセット</button>
+      <button class="reset-btn" onclick="resetAll()">リセット</button>
     </div>
 
     <div id="toast"
@@ -98,6 +55,7 @@
   <script>
     const rotationList = [];
     const meboshiList = [];
+    let resetTimer = null; // ← 追加: 自動リセット用
 
     function addRotation() {
       const ban = document.getElementById("banInput").value.trim();
@@ -117,8 +75,7 @@
         const nums = spin.split("#").map(x => parseInt(x));
         const total = nums.reduce((a, b) => a + b, 0);
         const detail = nums.length > 1 ? `（${nums.join("＋")}）` : "";
-        box.innerHTML += `${ban}番台　${total}${detail}
-`;
+        box.innerHTML += `${ban}番台　${total}${detail}\n`;
       });
     }
 
@@ -143,33 +100,37 @@
       document.getElementById("meboTama").value = "";
     }
 
-function renderMeboshi() {
-  const box = document.getElementById("meboshiBox");
-  box.innerHTML = "\n―― 目星 ――\n\n";
-  meboshiList.forEach(({ban, spin, minutes}) => {
-    box.innerHTML += `${ban}番台　${spin}　${minutes}分\n`;
-  });
-}
+    function renderMeboshi() {
+      const box = document.getElementById("meboshiBox");
+      box.innerHTML = "\n―― 目星 ――\n\n";
+      meboshiList.forEach(({ban, spin, minutes}) => {
+        box.innerHTML += `${ban}番台　${spin}　${minutes}分\n`;
+      });
+    }
 
-function copyAll(el) {
-  const text = document.getElementById("resultBox").textContent + "\n" + document.getElementById("meboshiBox").textContent;
-  el.dataset.clip = text;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => showToast());
-  } else {
-    fallbackCopy(text);
-    showToast();
-  }
-}
+    function copyAll(el) {
+      const text = document.getElementById("resultBox").textContent + "\n" + document.getElementById("meboshiBox").textContent;
+      el.dataset.clip = text;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast();
+          restartResetTimer(); // ← コピー時にリセットタイマー再始動
+        });
+      } else {
+        fallbackCopy(text);
+        showToast();
+        restartResetTimer();
+      }
+    }
 
-
-    function fallbackCopy(text){
+    function fallbackCopy(text) {
       const ta = document.createElement('textarea');
       ta.value = text;
       ta.style.position = 'fixed';
       ta.style.opacity = '0';
       document.body.appendChild(ta);
-      ta.select(); document.execCommand('copy');
+      ta.select();
+      document.execCommand('copy');
       document.body.removeChild(ta);
     }
 
@@ -184,6 +145,12 @@ function copyAll(el) {
       meboshiList.length = 0;
       document.getElementById("resultBox").innerHTML = "";
       document.getElementById("meboshiBox").innerHTML = "";
+      clearTimeout(resetTimer); // ← タイマー停止
+    }
+
+    function restartResetTimer() {
+      clearTimeout(resetTimer);
+      resetTimer = setTimeout(resetAll, 20 * 60 * 1000); // 20分（1200000ミリ秒）
     }
 
     function insertHash(inputId) {
@@ -191,8 +158,6 @@ function copyAll(el) {
       input.value += "#";
       input.focus();
     }
-
-
   </script>
 </body>
 </html>
