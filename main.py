@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request
-import os
 
 app = Flask(__name__)
 
@@ -12,7 +11,6 @@ def index():
 
     if request.method == "POST":
         rot_text = request.form.get("rotation_input", "")
-        rotation_result = []
         for line in rot_text.strip().split("\n"):
             if "#" in line:
                 parts = line.strip().split("#")
@@ -21,24 +19,25 @@ def index():
         rotation_result.sort()
 
         mebo_text = request.form.get("meboshi_input", "")
-        meboshi_result = []
-        total_minutes = 0
         for line in mebo_text.strip().split("\n"):
             line = line.strip()
             if "円" in line or "玉" in line:
                 parts = line.replace("円", " 円").replace("玉", " 玉").split()
                 if len(parts) == 2 and parts[0].isdigit():
                     number = int(parts[0])
-                    amount, unit = parts[1].split()
-                    amount = int(amount)
-                    if unit == "円":
-                        minutes = round((amount / 500) * 2)
-                    elif unit == "玉":
-                        minutes = round((amount / 125) * 2)
-                    else:
-                        minutes = 0
-                    total_minutes += minutes
-                    meboshi_result.append((number, f"{amount}{unit}", minutes))
+                    amount_unit = parts[1].split()
+                    if len(amount_unit) == 2:
+                        amount, unit = amount_unit
+                        if amount.isdigit():
+                            amount = int(amount)
+                            if unit == "円":
+                                minutes = round((amount / 500) * 2)
+                            elif unit == "玉":
+                                minutes = round((amount / 125) * 2)
+                            else:
+                                minutes = 0
+                            total_minutes += minutes
+                            meboshi_result.append((number, f"{amount}{unit}", minutes))
         meboshi_result.sort()
 
         lines = [f"{num}番台　{val}" for num, val in rotation_result]
@@ -52,8 +51,3 @@ def index():
                            meboshi_result=meboshi_result,
                            total_minutes=total_minutes,
                            final_output=final_output)
-
-# ✅ Render 対応の起動設定
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # Render が渡してくるポートを受け取る
-    app.run(host="0.0.0.0", port=port)
