@@ -13,11 +13,8 @@
     <section>
       <h2>回転数記入欄</h2>
       <div class="input-group">
-        <input id="banInput" placeholder="番台" inputmode="numeric">
-        <div style="display: flex; align-items: center;">
-          <input id="spinInput" placeholder="回転数（例: 340#190）" inputmode="numeric">
-          <button class="hash-btn" type="button" onclick="insertHash('spinInput')">#</button>
-        </div>
+        <input id="banInput" type="number" placeholder="番台" inputmode="numeric">
+        <input id="spinInput" type="number" placeholder="回転数" inputmode="numeric">
         <button onclick="addRotation()">追加</button>
       </div>
       <div id="resultBox"></div>
@@ -27,13 +24,10 @@
     <section>
       <h2>―― 目星 ――</h2>
       <div class="input-group">
-        <input id="meboBan" placeholder="番台" inputmode="numeric">
-        <div style="display: flex; align-items: center;">
-          <input id="meboSpin" placeholder="回転数" inputmode="numeric">
-          <button class="hash-btn" type="button" onclick="insertHash('meboSpin')">#</button>
-        </div>
-        <input id="meboYen" placeholder="金額（円）" inputmode="numeric">
-        <input id="meboTama" placeholder="持ち玉（玉）" inputmode="numeric">
+        <input id="meboBan" type="number" placeholder="番台" inputmode="numeric">
+        <input id="meboSpin" type="number" placeholder="回転数" inputmode="numeric">
+        <input id="meboYen" type="number" placeholder="金額（円）" inputmode="numeric">
+        <input id="meboTama" type="number" placeholder="持ち玉（玉）" inputmode="numeric">
         <button onclick="addMeboshi()">追加</button>
       </div>
       <div id="meboshiBox"></div>
@@ -50,7 +44,6 @@
                 font-size:.9rem;z-index:2000;box-shadow:0 0 6px #0008;">
       コピーしました
     </div>
-  </div>
 
   <script>
     const rotationList = [];
@@ -61,7 +54,7 @@
       document.getElementById("banInput").focus();
     };
 
-    // Enterキーで次へ進む（スマホ対応）
+    // Enterキーで次へ進む
     document.getElementById("banInput").addEventListener("keydown", e => {
       if (e.key === "Enter") document.getElementById("spinInput").focus();
     });
@@ -79,7 +72,7 @@
       const ban = document.getElementById("banInput").value.trim();
       const spin = document.getElementById("spinInput").value.trim();
       if (!ban || !spin) return;
-      rotationList.push({ ban: parseInt(ban), spin });
+      rotationList.push({ ban: parseInt(ban), spin: parseInt(spin) });
       rotationList.sort((a, b) => a.ban - b.ban);
       renderRotation();
       document.getElementById("banInput").value = "";
@@ -91,10 +84,7 @@
       const box = document.getElementById("resultBox");
       box.innerHTML = "";
       rotationList.forEach(({ban, spin}) => {
-        const nums = spin.split("#").map(x => parseInt(x));
-        const total = nums.reduce((a, b) => a + b, 0);
-        const detail = nums.length > 1 ? `（${nums.join("＋")}）` : "";
-        box.innerHTML += `${ban}番台　${total}${detail}\n`;
+        box.innerHTML += `${ban}番台　${spin}\n`;
       });
     }
 
@@ -109,7 +99,7 @@
       if (yen) minutes = Math.round((parseInt(yen) / 500) * 2);
       else if (tama) minutes = Math.round((parseInt(tama) / 125) * 2);
 
-      meboshiList.push({ ban: parseInt(ban), spin, minutes });
+      meboshiList.push({ ban: parseInt(ban), spin: parseInt(spin), minutes });
       meboshiList.sort((a, b) => a.ban - b.ban);
       renderMeboshi();
 
@@ -171,12 +161,6 @@
     function restartResetTimer() {
       clearTimeout(resetTimer);
       resetTimer = setTimeout(resetAll, 20 * 60 * 1000);
-    }
-
-    function insertHash(inputId) {
-      const input = document.getElementById(inputId);
-      input.value += "#";
-      input.focus();
     }
   </script>
 </body>

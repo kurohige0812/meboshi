@@ -5,7 +5,7 @@ body {
   color: #f0f0f0;
   font-size: 18px;
   margin: 0;
-  overflow-x: hidden; /* 横スクロール防止 */
+  overflow-x: hidden;
 }
 
 html, body {
@@ -14,41 +14,48 @@ html, body {
 }
 
 *, *::before, *::after {
-  box-sizing: border-box; /* パディング含めてサイズ制御 */
+  box-sizing: border-box;
 }
 
 .container {
-  max-width: 600px;
+  max-width: 540px;
   margin: auto;
   padding: 0 10px;
   overflow-x: hidden;
 }
 
-input {
-  width: 300px;
+.input-group {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.input-group input {
+  width: 49%;
   padding: 12px;
-  margin: 30px 0;
+  margin-bottom: 14px;
   font-size: 18px;
   border: 1px solid #444;
   border-radius: 6px;
   background-color: #222;
   color: white;
-  max-width: 300px;
+}
+
+.input-group input:last-child {
+  margin-right: 0;
 }
 
 button {
   padding: 12px 40px;
   font-size: 18px;
-  margin: 50px;
+  margin: 50px auto 20px auto;
   background: #0d6efd;
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
-  max-width: 100%;
 }
 
 #resultBox, #meboshiBox {
@@ -72,14 +79,13 @@ button {
   border: 1px solid #666;
   border-radius: 4px;
   cursor: pointer;
-  max-width: 100%;
 }
 .hash-btn:hover {
   background-color: #666;
 }
 
 .reset-btn {
-  background-color: #dc3545; /* 赤系 */
+  background-color: #dc3545;
   color: white;
   margin-top: 140px;
 }
@@ -87,6 +93,20 @@ button {
   background-color: #b52a38;
 }
 
+#toast {
+  background: #28a745; /* 緑に変更 */
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: .9rem;
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  box-shadow: 0 0 6px #0008;
+  display: none;
+}
 
 @media (max-width: 480px) {
   h1 {
