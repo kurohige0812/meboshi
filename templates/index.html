@@ -45,7 +45,7 @@
     </div>
 
     <div id="toast"
-         style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+         style="display:none;position:absolute;bottom:120px;left:50%;transform:translateX(-50%);
                 background:#0d6efd;color:#fff;padding:6px 16px;border-radius:8px;
                 font-size:.9rem;z-index:2000;box-shadow:0 0 6px #0008;">
       コピーしました
@@ -55,7 +55,25 @@
   <script>
     const rotationList = [];
     const meboshiList = [];
-    let resetTimer = null; // ← 追加: 自動リセット用
+    let resetTimer = null;
+
+    window.onload = () => {
+      document.getElementById("banInput").focus();
+    };
+
+    // Enterキーで次へ進む（スマホ対応）
+    document.getElementById("banInput").addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("spinInput").focus();
+    });
+    document.getElementById("meboBan").addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("meboSpin").focus();
+    });
+    document.getElementById("meboSpin").addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("meboYen").focus();
+    });
+    document.getElementById("meboYen").addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("meboTama").focus();
+    });
 
     function addRotation() {
       const ban = document.getElementById("banInput").value.trim();
@@ -66,6 +84,7 @@
       renderRotation();
       document.getElementById("banInput").value = "";
       document.getElementById("spinInput").value = "";
+      document.getElementById("banInput").focus();
     }
 
     function renderRotation() {
@@ -98,6 +117,7 @@
       document.getElementById("meboSpin").value = "";
       document.getElementById("meboYen").value = "";
       document.getElementById("meboTama").value = "";
+      document.getElementById("meboBan").focus();
     }
 
     function renderMeboshi() {
@@ -114,7 +134,7 @@
       if (navigator.clipboard) {
         navigator.clipboard.writeText(text).then(() => {
           showToast();
-          restartResetTimer(); // ← コピー時にリセットタイマー再始動
+          restartResetTimer();
         });
       } else {
         fallbackCopy(text);
@@ -145,12 +165,12 @@
       meboshiList.length = 0;
       document.getElementById("resultBox").innerHTML = "";
       document.getElementById("meboshiBox").innerHTML = "";
-      clearTimeout(resetTimer); // ← タイマー停止
+      clearTimeout(resetTimer);
     }
 
     function restartResetTimer() {
       clearTimeout(resetTimer);
-      resetTimer = setTimeout(resetAll, 20 * 60 * 1000); // 20分（1200000ミリ秒）
+      resetTimer = setTimeout(resetAll, 20 * 60 * 1000);
     }
 
     function insertHash(inputId) {
