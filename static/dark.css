@@ -94,16 +94,14 @@ button {
 }
 
 #toast {
-  background: #28a745; /* 緑に変更 */
+  background: #5a5f5b;
   color: #fff;
   padding: 6px 16px;
   border-radius: 8px;
   font-size: .9rem;
-  position: fixed;
-  bottom: 80px;
+  bottom: 10px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 2000;
   box-shadow: 0 0 6px #0008;
   display: none;
 }
