@@ -94,19 +94,20 @@ button {
 }
 
 #toast {
-  position: fixed;
   background: #6e716f;
   color: #fff;
   padding: 6px 16px;
   border-radius: 8px;
   font-size: .9rem;
-  bottom: 300px;
+  position: fixed; /* ← これが必要！ */
+  top: 300px;        /* ← 上から20pxに表示 */
   left: 50%;
   transform: translateX(-50%);
   box-shadow: 0 0 6px #0008;
   display: none;
   z-index: 2000;
 }
+
 
 @media (max-width: 480px) {
   h1 {
